@@ -12,3 +12,5 @@ A program to maintain constants throughout a web application.
 
 ### TODO
 - Implement functionality to overwrite / delete old files 
+- Add tests
+- Make it a lib?
