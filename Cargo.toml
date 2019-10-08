@@ -9,6 +9,6 @@ license = "MIT"
 repository = "https://github.com/mathiversen/constapel"
 
 [dependencies]
-serde = "1.0.99"
-serde_json = "1.0.40"
+serde = { version = "1.0", features = ["derive"] }
+serde_yaml = "0.8"
 structopt = "0.2.18"
