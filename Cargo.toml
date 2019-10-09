@@ -8,6 +8,14 @@ keywords = ["constants", "web", "css", "scss", "js"]
 license = "MIT"
 repository = "https://github.com/mathiversen/constapel"
 
+[lib]
+name = "constapel"
+path = "src/lib.rs"
+
+[[bin]]
+name = "constapel"
+path = "src/bin.rs"
+
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
 serde_yaml = "0.8"

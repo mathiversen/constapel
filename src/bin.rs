@@ -20,7 +20,7 @@ type Result<T> = std::result::Result<T, std::boxed::Box<dyn std::error::Error>>;
 
 const STR_DONT_EDIT: &str = r"DON'T EDIT THIS FILE - IT'S GENERATED";
 
-fn main() -> Result<()> {
+pub fn main() -> Result<()> {
     let opt = Cli::from_args();
 
     let serialized = parse::serialize_input_file(&opt.input)?;

@@ -14,11 +14,18 @@ pub fn create(dir_path: &str, constants: &Constants) -> Result<()> {
         let mut file = fs::File::create(format!("{}/{}.js", dir_path, constant_group)).expect("Failed to create file.");
         file.write_all(format!("// {}\n\n", STR_DONT_EDIT).as_bytes())?;
         file.write_all("export default {\n".as_bytes())?;
-        for (key, value) in constant.iter() {
+        for (index, (key, value)) in constant.iter().enumerate() {
+
             match (key, value) {
-                (Value::String(s1), Value::String(s2)) => file.write_all(format!("{:4}{}: '{}',\n", "", s1, s2).as_bytes())?,
-                (Value::String(s1), Value::Number(s2)) => file.write_all(format!("{:4}{}: {},\n", "", s1, s2).as_bytes())?,
+                (Value::String(s1), Value::String(s2)) => file.write_all(format!("{:4}{}: '{}'", "", s1, s2).as_bytes())?,
+                (Value::String(s1), Value::Number(s2)) => file.write_all(format!("{:4}{}: {}", "", s1, s2).as_bytes())?,
                 _ => unimplemented!()
+            }
+
+            if index == constant.len() - 1 {
+                file.write_all(format!("\n").as_bytes())?
+            } else {
+                file.write_all(format!(",\n").as_bytes())?
             }
 
         }
