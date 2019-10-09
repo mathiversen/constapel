@@ -39,7 +39,7 @@ fn main() -> Result<()> {
     let mut contents = String::new();
     file.read_to_string(&mut contents)?;
 
-    let serialized: Inputfile = serde_yaml::from_str(&contents).unwrap();
+    let serialized: Inputfile = serde_yaml::from_str(&contents).expect("Failed to parse the yaml file.");
 
     for (file_ending, output_file) in serialized.output_files.iter() {
         let relevant_constants: Constants = serialized.constants.iter().fold(HashMap::new(), |mut acc, (key, value)| {

@@ -19,7 +19,7 @@
 // }
 use crate::{Outputfile, Constants, STR_DONT_EDIT, Result};
 
-pub fn create(output_file: &str, constants: &Constants) -> Result<()>{
-    dbg!(output_file, constants);
+pub fn create(dir: &str, constants: &Constants) -> Result<()>{
+    // dbg!(dir, constants);
     Ok(())
 }
