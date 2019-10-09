@@ -16,9 +16,11 @@ mod file_types {
 }
 
 type Result<T> = std::result::Result<T, std::boxed::Box<dyn std::error::Error>>;
-type Constants = HashMap<String, HashMap<Value, Value>>;
+
 
 const STR_DONT_EDIT: &str = r"DON'T EDIT THIS FILE - IT'S GENERATED";
+
+type Constants = HashMap<String, HashMap<Value, Value>>;
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
 pub struct Inputfile {
