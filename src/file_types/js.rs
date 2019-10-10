@@ -1,7 +1,7 @@
-use std::io::Write;
-use std::fs;
+use crate::{ConstantList, Result, STR_DONT_EDIT};
 use serde_yaml::Value;
-use crate::{ConstantList, STR_DONT_EDIT, Result};
+use std::fs;
+use std::io::Write;
 
 pub fn create(dir_path: &str, constants: &ConstantList) -> Result<()> {
     // Create dir
@@ -11,15 +11,19 @@ pub fn create(dir_path: &str, constants: &ConstantList) -> Result<()> {
 
     // Write to file
     for (constant_group, constant) in constants.iter() {
-        let mut file = fs::File::create(format!("{}/{}.js", dir_path, constant_group)).expect("Failed to create file.");
+        let mut file = fs::File::create(format!("{}/{}.js", dir_path, constant_group))
+            .expect("Failed to create file.");
         file.write_all(format!("// {}\n\n", STR_DONT_EDIT).as_bytes())?;
         file.write_all("export default {\n".as_bytes())?;
         for (index, (key, value)) in constant.iter().enumerate() {
-
             match (key, value) {
-                (Value::String(s1), Value::String(s2)) => file.write_all(format!("{:4}{}: '{}'", "", s1, s2).as_bytes())?,
-                (Value::String(s1), Value::Number(s2)) => file.write_all(format!("{:4}{}: {}", "", s1, s2).as_bytes())?,
-                _ => unimplemented!()
+                (Value::String(s1), Value::String(s2)) => {
+                    file.write_all(format!("{:4}{}: '{}'", "", s1, s2).as_bytes())?
+                }
+                (Value::String(s1), Value::Number(s2)) => {
+                    file.write_all(format!("{:4}{}: {}", "", s1, s2).as_bytes())?
+                }
+                _ => unimplemented!(),
             }
 
             if index == constant.len() - 1 {
@@ -27,7 +31,6 @@ pub fn create(dir_path: &str, constants: &ConstantList) -> Result<()> {
             } else {
                 file.write_all(format!(",\n").as_bytes())?
             }
-
         }
         file.write_all("}\n".as_bytes())?;
     }
