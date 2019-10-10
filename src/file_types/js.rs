@@ -1,9 +1,9 @@
 use std::io::Write;
 use std::fs;
 use serde_yaml::Value;
-use crate::{Constants, STR_DONT_EDIT, Result};
+use crate::{ConstantList, STR_DONT_EDIT, Result};
 
-pub fn create(dir_path: &str, constants: &Constants) -> Result<()> {
+pub fn create(dir_path: &str, constants: &ConstantList) -> Result<()> {
     // Create dir
     if fs::metadata(dir_path).is_err() {
         fs::create_dir_all(dir_path).expect("Failed to create directory");

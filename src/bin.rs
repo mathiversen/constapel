@@ -1,5 +1,6 @@
 use structopt::StructOpt;
 use std::collections::HashMap;
+use derive_more::From;
 
 mod cli;
 use cli::{
@@ -8,25 +9,33 @@ use cli::{
 
 mod parse;
 use parse::{
-    Constants
+    Constapel,
+    ConstantList
 };
 mod file_types {
     pub mod js;
     pub mod scss;
 }
 
-type Result<T> = std::result::Result<T, std::boxed::Box<dyn std::error::Error>>;
+#[derive(From, Debug)]
+pub enum Error {
+  Io(std::io::Error),
+  Yaml(serde_yaml::Error),
+  #[doc(hidden)]
+  __Nonexhaustive
+}
 
+pub type Result<T> = std::result::Result<T, Error>;
 
 const STR_DONT_EDIT: &str = r"DON'T EDIT THIS FILE - IT'S GENERATED";
 
 pub fn main() -> Result<()> {
     let opt = Cli::from_args();
 
-    let serialized = parse::serialize_input_file(&opt.input)?;
+    let serialized = Constapel::from_yaml(&opt.input)?;
 
     for (file_ending, output_file) in serialized.output_files.iter() {
-        let relevant_constants: Constants = serialized.constants.iter().fold(HashMap::new(), |mut acc, (key, value)| {
+        let relevant_constants: ConstantList = serialized.constants.iter().fold(HashMap::new(), |mut acc, (key, value)| {
             if output_file.constants.contains(&key) {
                 acc.insert(key.clone(), value.clone());
                 acc
