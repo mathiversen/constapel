@@ -1,4 +1,4 @@
-use crate::{ConstantList, Result, STR_DONT_EDIT};
+use crate::{file_creator::ConstantList, result::Result, STR_DONT_EDIT};
 use serde_yaml::Value;
 use std::fs;
 use std::io::Write;
@@ -27,9 +27,9 @@ pub fn create(dir_path: &str, constants: &ConstantList) -> Result<()> {
             }
 
             if index == constant.len() - 1 {
-                file.write_all(format!("\n").as_bytes())?
+                file.write_all("\n".to_string().as_bytes())?
             } else {
-                file.write_all(format!(",\n").as_bytes())?
+                file.write_all(",\n".to_string().as_bytes())?
             }
         }
         file.write_all("}\n".as_bytes())?;
