@@ -19,7 +19,7 @@
 // }
 use crate::{ConstantList, Result, STR_DONT_EDIT};
 
-pub fn create(dir: &str, constants: &ConstantList) -> Result<()> {
+pub fn create(dir: &str, _constants: &ConstantList) -> Result<()> {
     // dbg!(dir, constants);
     Ok(())
 }

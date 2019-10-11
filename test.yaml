@@ -10,11 +10,6 @@ output_files:
     constants:
       - spacing
       - screens
-  xx:
-    path: '.'
-    constants:
-      - spacing
-      - screens
 
 constants:
   colors:
