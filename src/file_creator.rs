@@ -1,11 +1,11 @@
+use crate::file_types;
+use crate::result::{Error, Result};
 use serde::{Deserialize, Serialize};
 use serde_yaml::Value;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::prelude::*;
 use std::path::PathBuf;
-use crate::result::{Result, Error};
-use crate::file_types;
 
 pub type ConstantList = HashMap<String, HashMap<Value, Value>>;
 
@@ -22,12 +22,15 @@ pub struct FileFormats {
 }
 
 impl FileCreator {
-    pub fn from_yaml(path: &PathBuf) -> Result<FileCreator> {
-        let mut file = File::open(path)?;
-        let mut contents = String::new();
-        file.read_to_string(&mut contents)?;
+    pub fn new(content: String) -> Result<FileCreator> {
+        serde_yaml::from_str(&content).map_err(Error::Yaml)
+    }
 
-        serde_yaml::from_str(&contents).map_err(Error::Yaml)
+    pub fn from_yaml_file(path: &PathBuf) -> Result<FileCreator> {
+        let mut file = File::open(path)?;
+        let mut content = String::new();
+        file.read_to_string(&mut content)?;
+        serde_yaml::from_str(&content).map_err(Error::Yaml)
     }
 
     pub fn run(self) -> Result<()> {
@@ -52,4 +55,28 @@ impl FileCreator {
 
         Ok(())
     }
+}
+
+mod tests {
+  use super::*;
+  use unindent::unindent;
+
+  #[test]
+  fn it_can_parse_yaml() {
+    let yaml = unindent(
+      "
+      output_files:
+        js:
+          path: ''
+          constants:
+            - colors
+      constants:
+        colors:
+          white: '#ffffff'
+      "
+    );
+    let c = FileCreator::new(yaml).expect("Failed to parse.");
+    assert!(&c.output_files.get("js").is_some());
+    assert!(&c.constants.get("colors").is_some());
+  }
 }
