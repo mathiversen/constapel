@@ -22,10 +22,15 @@ pub struct FileFormats {
 }
 
 impl FileCreator {
-    pub fn new(content: String) -> Result<FileCreator> {
+
+    /// This method parses a file using the reference of its path as the argument. It will return an error
+    /// unless the file is formatted according to the FileCreator struct.
+    pub fn from_yaml(content: String) -> Result<FileCreator> {
         serde_yaml::from_str(&content).map_err(Error::Yaml)
     }
 
+    /// This method parses a file using the reference of its path as the argument. It will return an error
+    /// unless the file is formatted according to the FileCreator struct.
     pub fn from_yaml_file(path: &PathBuf) -> Result<FileCreator> {
         let mut file = File::open(path)?;
         let mut content = String::new();
@@ -33,6 +38,8 @@ impl FileCreator {
         serde_yaml::from_str(&content).map_err(Error::Yaml)
     }
 
+    /// This is the main method, used to match against provided file endings
+    /// and then create files for each match.
     pub fn run(self) -> Result<()> {
         for (file_ending, output_file) in self.output_files.iter() {
             let relevant_constants: ConstantList =
@@ -58,26 +65,24 @@ impl FileCreator {
 }
 
 mod tests {
-  #![allow(unused_imports)]
-  use super::*;
-  use unindent::unindent;
+    #![allow(unused_imports)]
+    use super::*;
+    use unindent::unindent;
 
-  #[test]
-  fn it_can_parse_yaml() {
-    let yaml = unindent(
-      "
-      output_files:
-        js:
-          path: ''
+    #[test]
+    fn it_can_parse_yaml() {
+        let yaml = r#"
+          output_files:
+            js:
+              path: '.'
+              constants:
+                - colors
           constants:
-            - colors
-      constants:
-        colors:
-          white: '#ffffff'
-      "
-    );
-    let c = FileCreator::new(yaml).expect("Failed to parse.");
-    assert!(&c.output_files.get("js").is_some());
-    assert!(&c.constants.get("colors").is_some());
-  }
+            colors:
+              white: '#ffffff'
+        "#;
+        let c = FileCreator::from_yaml(yaml.to_string()).expect("Failed to parse.");
+        assert_eq!(&c.output_files["js"].path, ".");
+        assert_eq!(&c.constants["colors"][&serde_yaml::Value::String("white".to_string())], "#ffffff");
+    }
 }

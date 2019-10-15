@@ -1,6 +1,6 @@
 use colored::*;
-use std::process::exit;
 use std::path::PathBuf;
+use std::process::exit;
 use structopt::StructOpt;
 
 use constapel::Constapel;
