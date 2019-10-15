@@ -23,14 +23,12 @@ pub struct FileFormats {
 
 impl FileCreator {
 
-    /// This method parses a file using the reference of its path as the argument. It will return an error
-    /// unless the file is formatted according to the FileCreator struct.
+    /// Initiate with a yaml string.
     pub fn from_yaml(content: String) -> Result<FileCreator> {
         serde_yaml::from_str(&content).map_err(Error::Yaml)
     }
 
-    /// This method parses a file using the reference of its path as the argument. It will return an error
-    /// unless the file is formatted according to the FileCreator struct.
+    /// Initiate with a reference to a yaml file.
     pub fn from_yaml_file(path: &PathBuf) -> Result<FileCreator> {
         let mut file = File::open(path)?;
         let mut content = String::new();
@@ -38,8 +36,7 @@ impl FileCreator {
         serde_yaml::from_str(&content).map_err(Error::Yaml)
     }
 
-    /// This is the main method, used to match against provided file endings
-    /// and then create files for each match.
+    /// Run the program and create all constant files, according to the provideded structure.
     pub fn run(self) -> Result<()> {
         for (file_ending, output_file) in self.output_files.iter() {
             let relevant_constants: ConstantList =
@@ -70,7 +67,7 @@ mod tests {
     use unindent::unindent;
 
     #[test]
-    fn it_can_parse_yaml() {
+    fn parse_yaml_string() {
         let yaml = r#"
           output_files:
             js:

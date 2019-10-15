@@ -1,3 +1,5 @@
+//! Constapel is a simple library to manage and create constants throughout a web application.
+
 mod file_creator;
 mod file_types;
 mod result;

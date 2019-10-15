@@ -7,7 +7,6 @@ use constapel::Constapel;
 
 #[derive(Debug, StructOpt)]
 pub struct Opt {
-    /// The .yaml input file
     #[structopt(parse(from_os_str))]
     pub input: PathBuf,
 }

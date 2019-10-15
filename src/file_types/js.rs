@@ -5,6 +5,7 @@ use std::fs;
 use std::io::Write;
 
 pub fn create(dir_path: &str, constants: &ConstantList) -> Result<()> {
+
     // Create dir
     if fs::metadata(dir_path).is_err() {
         fs::create_dir_all(dir_path).expect("Failed to create directory");
@@ -12,28 +13,32 @@ pub fn create(dir_path: &str, constants: &ConstantList) -> Result<()> {
 
     // Write to file
     for (constant_group, constant) in constants.iter() {
-        let mut file = fs::File::create(format!("{}/{}.js", dir_path, constant_group))
-            .expect("Failed to create file.");
-        file.write_all(format!("// {}\n\n", STR_DONT_EDIT).as_bytes())?;
-        file.write_all("export default {\n".as_bytes())?;
+
+        let mut file = fs::File::create(format!("{}/{}.js", dir_path, constant_group)).expect("Failed to create file.");
+        let mut file_content = String::new();
+
+        file_content.push_str(format!("// {}\n\n", STR_DONT_EDIT).as_str());
+        file_content.push_str("export default {\n");
+
         for (index, (key, value)) in constant.iter().enumerate() {
             match (key, value) {
                 (Value::String(s1), Value::String(s2)) => {
-                    file.write_all(format!("{:4}{}: '{}'", "", s1, s2).as_bytes())?
+                     file_content.push_str(format!("{:4}{}: '{}'", "", s1, s2).as_str())
                 }
                 (Value::String(s1), Value::Number(s2)) => {
-                    file.write_all(format!("{:4}{}: {}", "", s1, s2).as_bytes())?
+                    file_content.push_str(format!("{:4}{}: {}", "", s1, s2).as_str())
                 }
                 _ => unimplemented!(),
             }
 
             if index == constant.len() - 1 {
-                file.write_all("\n".to_string().as_bytes())?
+                file_content.push_str("\n");
             } else {
-                file.write_all(",\n".to_string().as_bytes())?
+                file_content.push_str(",\n");
             }
         }
-        file.write_all("}\n".as_bytes())?;
+        file_content.push_str("}\n");
+        file.write_all(file_content.as_bytes())?;
     }
 
     Ok(())

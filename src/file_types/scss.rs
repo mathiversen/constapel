@@ -1,25 +1,37 @@
-// use serde_json::Value;
-// use std::path::PathBuf;
-// use std::fs::{ File };
-// use std::io::prelude::*;
-// use crate::{ STR_DONT_EDIT, Result };
-
-// pub fn write_to_file(name: &str, value: &Value, path: &PathBuf) -> Result<()> {
-//     let mut file_css = File::create(format!("{}/_{}.scss", &path.to_string_lossy(), &name))?;
-//     file_css.write_all(format!("// {}\n\n", STR_DONT_EDIT).as_bytes())?;
-//     for v in value.as_object().expect("Failed to parse value") {
-//         let x = match v.1 {
-//             Value::String(x) => format!("${}: {};\n", v.0, x.replace("\"", "")),
-//             Value::Number(x) => format!("${}: {};\n", v.0, x),
-//             _ => panic!("Only strings and numbers have been implemented for"),
-//         };
-//         file_css.write_all(x.as_bytes())?;
-//     }
-//     Ok(())
-// }
+use super::STR_DONT_EDIT;
 use crate::{file_creator::ConstantList, result::Result};
+use serde_yaml::Value;
+use std::fs;
+use std::io::Write;
 
-pub fn create(_dir: &str, _constants: &ConstantList) -> Result<()> {
-    // dbg!(dir, constants);
+pub fn create(dir_path: &str, constants: &ConstantList) -> Result<()> {
+
+      // Create dir
+    if fs::metadata(dir_path).is_err() {
+        fs::create_dir_all(dir_path).expect("Failed to create directory");
+    }
+
+    // Write to file
+    for (constant_group, constant) in constants.iter() {
+
+        let mut file = fs::File::create(format!("{}/{}.scss", dir_path, constant_group)).expect("Failed to create file.");
+        let mut file_content = String::new();
+
+        file_content.push_str(format!("// {}\n\n", STR_DONT_EDIT).as_str());
+
+        for (key, value) in constant.iter() {
+            match (key, value) {
+                (Value::String(s1), Value::String(s2)) => {
+                     file_content.push_str(format!("${}: '{}';\n", s1, s2).as_str())
+                }
+                (Value::String(s1), Value::Number(s2)) => {
+                    file_content.push_str(format!("${}: {};\n", s1, s2).as_str())
+                }
+                _ => unimplemented!(),
+            }
+        }
+        file.write_all(file_content.as_bytes())?;
+    }
+
     Ok(())
 }
