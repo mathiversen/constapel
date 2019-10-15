@@ -1,23 +1,19 @@
 use colored::*;
 use std::process::exit;
+use std::path::PathBuf;
 use structopt::StructOpt;
 
-mod cli;
-mod file_types {
-    // pub mod css;
-    pub mod js;
-    pub mod scss;
+use constapel::Constapel;
+
+#[derive(Debug, StructOpt)]
+pub struct Opt {
+    /// The .yaml input file
+    #[structopt(parse(from_os_str))]
+    pub input: PathBuf,
 }
-mod file_creator;
-mod result;
-
-use cli::Cli;
-use file_creator::FileCreator as Constapel;
-
-const STR_DONT_EDIT: &str = r"DON'T EDIT THIS FILE - IT'S GENERATED";
 
 pub fn main() {
-    let opt = Cli::from_args();
+    let opt = Opt::from_args();
     Constapel::from_yaml_file(&opt.input)
         .map_err(|error| {
             println!("{}", error.to_string().red());

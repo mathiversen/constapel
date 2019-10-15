@@ -1,4 +1,5 @@
-use crate::{file_creator::ConstantList, result::Result, STR_DONT_EDIT};
+use crate::{file_creator::ConstantList, result::Result};
+use super::STR_DONT_EDIT;
 use serde_yaml::Value;
 use std::fs;
 use std::io::Write;

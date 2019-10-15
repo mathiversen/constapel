@@ -17,9 +17,9 @@
 //     }
 //     Ok(())
 // }
-use crate::{file_creator::ConstantList, result::Result, STR_DONT_EDIT};
+use crate::{file_creator::ConstantList, result::Result};
 
-pub fn create(dir: &str, _constants: &ConstantList) -> Result<()> {
+pub fn create(_dir: &str, _constants: &ConstantList) -> Result<()> {
     // dbg!(dir, constants);
     Ok(())
 }
