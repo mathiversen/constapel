@@ -28,7 +28,7 @@ pub fn create(dir_path: &str, constants: &ConstantList) -> Result<()> {
                 (Value::String(s1), Value::Number(s2)) => {
                     file_content.push_str(format!("{:4}{}: {}", "", s1, s2).as_str())
                 }
-                x => return Err(Error::UnknownValueType(format!("{:?} and {:?}", x.0, x.1)))
+                x => return Err(Error::NotSupportedValue(format!("{:?} and {:?}", x.0, x.1)))
             }
 
             if index == constant.len() - 1 {

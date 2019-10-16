@@ -7,7 +7,7 @@ pub enum Error {
     #[display(fmt = "[ERROR]: The file ending .{} is not supported.", _0)]
     UnknownTarget(String),
     #[display(fmt = "[ERROR]: The value {} is of an unknown type, only strings and numbers are supported.", _0)]
-    UnknownValueType(String),
+    NotSupportedValue(String),
     #[display(fmt = "[ERROR]: IO error.")]
     Io(std::io::Error),
     #[display(fmt = "[ERROR]: Yaml parsing error")]

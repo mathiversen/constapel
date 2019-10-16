@@ -29,7 +29,7 @@ pub fn create(dir_path: &str, constants: &ConstantList) -> Result<()> {
                 (Value::String(s), Value::Number(n)) => {
                     file_content.push_str(format!("{:4}--{}-{}: {};\n", "", constant_group, s, n).as_str())
                 }
-                x => return Err(Error::UnknownValueType(format!("{:?} and {:?}", x.0, x.1)))
+                x => return Err(Error::NotSupportedValue(format!("{:?} and {:?}", x.0, x.1)))
             }
         }
     }
