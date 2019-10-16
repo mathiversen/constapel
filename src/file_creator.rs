@@ -53,6 +53,7 @@ impl FileCreator {
             match file_ending.as_str() {
                 "js" => file_types::js::create(&output_file.path, &relevant_constants)?,
                 "scss" => file_types::scss::create(&output_file.path, &relevant_constants)?,
+                "css" => file_types::css::create(&output_file.path, &relevant_constants)?,
                 _ => return Err(Error::UnknownTarget(file_ending.clone())),
             }
         }

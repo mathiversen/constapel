@@ -1,5 +1,5 @@
 use super::STR_DONT_EDIT;
-use crate::{file_creator::ConstantList, result::Result};
+use crate::{file_creator::ConstantList, result::{Result, Error}};
 use serde_yaml::Value;
 use std::fs;
 use std::io::Write;
@@ -22,12 +22,12 @@ pub fn create(dir_path: &str, constants: &ConstantList) -> Result<()> {
         for (key, value) in constant.iter() {
             match (key, value) {
                 (Value::String(s1), Value::String(s2)) => {
-                     file_content.push_str(format!("${}: '{}';\n", s1, s2).as_str())
+                     file_content.push_str(format!("${}-{}: '{}';\n", constant_group, s1, s2).as_str())
                 }
                 (Value::String(s1), Value::Number(s2)) => {
-                    file_content.push_str(format!("${}: {};\n", s1, s2).as_str())
+                    file_content.push_str(format!("${}-{}: {};\n", constant_group, s1, s2).as_str())
                 }
-                _ => unimplemented!(),
+                x => return Err(Error::UnknownValueType(format!("{:?} and {:?}", x.0, x.1)))
             }
         }
         file.write_all(file_content.as_bytes())?;
