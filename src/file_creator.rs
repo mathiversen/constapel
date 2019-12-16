@@ -11,14 +11,15 @@ pub type ConstantList = HashMap<String, HashMap<Value, Value>>;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct FileCreator {
-    pub output_files: HashMap<String, FileFormats>,
+    pub output_files: HashMap<String, OutputFiles>,
     pub constants: ConstantList,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct FileFormats {
+pub struct OutputFiles {
     pub path: String,
-    pub constants: Vec<String>,
+    #[serde(rename = "constants")]
+    pub constants_ref: Vec<String>,
 }
 
 impl FileCreator {
@@ -38,16 +39,9 @@ impl FileCreator {
     /// Run the program and create all constant files, according to the provideded structure.
     pub fn run(&self) -> Result<()> {
         for (file_ending, output_file) in self.output_files.iter() {
-            let relevant_constants: ConstantList = self.constants.iter().fold(HashMap::new(), |mut acc, (key, value)| {
-                if output_file.constants.contains(&key) {
-                    acc.insert(key.clone(), value.clone());
-                    acc
-                } else {
-                    acc
-                }
-            });
+            let relevant_constants = self.get_relevant_constants(output_file);
             match file_ending.as_str() {
-                "js" => file_types::js::create(&output_file.path, &relevant_constants)?,
+                "js" => file_types::js::create(&output_file.path, &relevant_constants, &self.constants)?,
                 "scss" => file_types::scss::create(&output_file.path, &relevant_constants)?,
                 "css" => file_types::css::create(&output_file.path, &relevant_constants)?,
                 _ => return Err(Error::UnknownTarget(file_ending.clone())),
@@ -55,6 +49,17 @@ impl FileCreator {
         }
 
         Ok(())
+    }
+
+    pub fn get_relevant_constants(&self, output_file: &OutputFiles) -> ConstantList {
+        self.constants.iter().fold(HashMap::new(), |mut acc, (key, value)| {
+            if output_file.constants_ref.contains(&key) {
+                acc.insert(key.clone(), value.clone());
+                acc
+            } else {
+                acc
+            }
+        })
     }
 }
 

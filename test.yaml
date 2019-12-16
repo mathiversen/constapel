@@ -1,7 +1,7 @@
 output_files:
   js:
     path: ./js/constants
-    constants: [color, spacing]
+    constants: [color, spacing, borders]
   scss:
     path: ./scss/constants
     constants: [spacing, screen, borders]
@@ -16,9 +16,10 @@ constants:
     red: "#ff0000"
 
   spacing:
-    px: "1px"
+    "px": "1px"
     "0": "0"
     "1": "0.25rem"
+    "2": "2px"
 
   screen:
     s: "640px"
@@ -27,4 +28,4 @@ constants:
     xl: "1280px"
 
   borders:
-    red: "&color.red"
+    red: "*color.red"
