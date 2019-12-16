@@ -22,7 +22,6 @@ pub struct FileFormats {
 }
 
 impl FileCreator {
-
     /// Initiate with a yaml string.
     pub fn from_yaml(content: String) -> Result<FileCreator> {
         serde_yaml::from_str(&content).map_err(Error::Yaml)
@@ -37,19 +36,16 @@ impl FileCreator {
     }
 
     /// Run the program and create all constant files, according to the provideded structure.
-    pub fn run(self) -> Result<()> {
+    pub fn run(&self) -> Result<()> {
         for (file_ending, output_file) in self.output_files.iter() {
-            let relevant_constants: ConstantList =
-                self.constants
-                    .iter()
-                    .fold(HashMap::new(), |mut acc, (key, value)| {
-                        if output_file.constants.contains(&key) {
-                            acc.insert(key.clone(), value.clone());
-                            acc
-                        } else {
-                            acc
-                        }
-                    });
+            let relevant_constants: ConstantList = self.constants.iter().fold(HashMap::new(), |mut acc, (key, value)| {
+                if output_file.constants.contains(&key) {
+                    acc.insert(key.clone(), value.clone());
+                    acc
+                } else {
+                    acc
+                }
+            });
             match file_ending.as_str() {
                 "js" => file_types::js::create(&output_file.path, &relevant_constants)?,
                 "scss" => file_types::scss::create(&output_file.path, &relevant_constants)?,
@@ -79,8 +75,11 @@ mod tests {
             colors:
               white: '#ffffff'
         "#;
-        let c = FileCreator::from_yaml(yaml.to_string()).expect("Failed to parse.");
+        let c = FileCreator::from_yaml(yaml.to_string()).unwrap();
         assert_eq!(&c.output_files["js"].path, ".");
-        assert_eq!(&c.constants["colors"][&serde_yaml::Value::String("white".to_string())], "#ffffff");
+        assert_eq!(
+            &c.constants["colors"][&serde_yaml::Value::String("white".to_string())],
+            "#ffffff"
+        );
     }
 }
