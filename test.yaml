@@ -7,7 +7,7 @@ output_files:
     constants: [spacing, screen, borders]
   css:
     path: ./css
-    constants: [color, spacing, screen]
+    constants: [color, spacing, screen, borders]
 
 constants:
   color:

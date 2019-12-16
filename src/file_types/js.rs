@@ -1,4 +1,4 @@
-use super::STR_DONT_EDIT;
+use super::{get_reference_value, STR_DONT_EDIT};
 use crate::{
     file_creator::ConstantList,
     result::{Error, Result},
@@ -52,19 +52,4 @@ pub fn create(dir_path: &str, constants: &ConstantList, all_constants: &Constant
     }
 
     Ok(())
-}
-
-fn get_reference_value(reference: &str, all_constants: &ConstantList) -> Option<Value> {
-    let mut keys: Vec<&str> = reference.split('.').collect();
-    keys[0] = keys[0].trim_start_matches('*');
-
-    if let Some(category) = all_constants.get(keys[0]) {
-        if let Some(value) = category.get(&Value::String(keys[1].to_string())) {
-            Some(value.clone())
-        } else {
-            None
-        }
-    } else {
-        None
-    }
 }

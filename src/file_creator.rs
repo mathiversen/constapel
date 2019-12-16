@@ -42,8 +42,8 @@ impl FileCreator {
             let relevant_constants = self.get_relevant_constants(output_file);
             match file_ending.as_str() {
                 "js" => file_types::js::create(&output_file.path, &relevant_constants, &self.constants)?,
-                "scss" => file_types::scss::create(&output_file.path, &relevant_constants)?,
-                "css" => file_types::css::create(&output_file.path, &relevant_constants)?,
+                "scss" => file_types::scss::create(&output_file.path, &relevant_constants, &self.constants)?,
+                "css" => file_types::css::create(&output_file.path, &relevant_constants, &self.constants)?,
                 _ => return Err(Error::UnknownTarget(file_ending.clone())),
             }
         }

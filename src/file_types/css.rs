@@ -1,12 +1,14 @@
-use super::STR_DONT_EDIT;
-use crate::{file_creator::ConstantList, result::{Result, Error}};
+use super::{get_reference_value, STR_DONT_EDIT};
+use crate::{
+    file_creator::ConstantList,
+    result::{Error, Result},
+};
 use serde_yaml::Value;
 use std::fs;
 use std::io::Write;
 
-pub fn create(dir_path: &str, constants: &ConstantList) -> Result<()> {
-
-      // Create dir
+pub fn create(dir_path: &str, constants: &ConstantList, all_constants: &ConstantList) -> Result<()> {
+    // Create dir
     if fs::metadata(dir_path).is_err() {
         fs::create_dir_all(dir_path).expect("Failed to create directory");
     }
@@ -18,18 +20,25 @@ pub fn create(dir_path: &str, constants: &ConstantList) -> Result<()> {
     file_content.push_str(":root {\n");
 
     for (constant_group, constant) in constants.iter() {
-
         for (key, value) in constant.iter() {
             match (key, value) {
-                // String
-                (Value::String(s1), Value::String(s2)) => {
-                     file_content.push_str(format!("{:4}--{}-{}: '{}';\n", "", constant_group, s1, s2).as_str())
+                (Value::String(key), Value::String(value)) => match &value.chars().next() {
+                    Some('*') => file_content.push_str(
+                        format!(
+                            "{:4}--{}-{}: '{}';\n",
+                            "",
+                            constant_group,
+                            key,
+                            get_reference_value(value, all_constants).unwrap().as_str().unwrap()
+                        )
+                        .as_str(),
+                    ),
+                    _ => file_content.push_str(format!("{:4}--{}-{}: '{}';\n", "", constant_group, key, value).as_str()),
+                },
+                (Value::String(key), Value::Number(value)) => {
+                    file_content.push_str(format!("{:4}--{}-{}: {};\n", "", constant_group, key, value).as_str())
                 }
-                // Number
-                (Value::String(s), Value::Number(n)) => {
-                    file_content.push_str(format!("{:4}--{}-{}: {};\n", "", constant_group, s, n).as_str())
-                }
-                x => return Err(Error::NotSupportedValue(format!("{:?} and {:?}", x.0, x.1)))
+                x => return Err(Error::NotSupportedValue(format!("{:?} and {:?}", x.0, x.1))),
             }
         }
     }
