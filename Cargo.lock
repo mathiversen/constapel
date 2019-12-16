@@ -75,7 +75,7 @@ dependencies = [
 
 [[package]]
 name = "constapel"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "colored 1.8.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "derive_more 0.15.0 (registry+https://github.com/rust-lang/crates.io-index)",

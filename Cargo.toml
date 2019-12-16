@@ -1,6 +1,6 @@
 [package]
 name = "constapel"
-version = "0.1.1"
+version = "0.2.0"
 authors = ["Mathias Ivar Iversen <work@mathiasiversen.com>"]
 edition = "2018"
 description = "A program to maintain constants throughout a web application."
