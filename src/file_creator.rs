@@ -20,6 +20,7 @@ pub struct OutputFiles {
     pub path: String,
     #[serde(rename = "constants")]
     pub constants_ref: Vec<String>,
+    pub files: String
 }
 
 impl FileCreator {
@@ -51,7 +52,7 @@ impl FileCreator {
         Ok(())
     }
 
-    pub fn get_relevant_constants(&self, output_file: &OutputFiles) -> ConstantList {
+    fn get_relevant_constants(&self, output_file: &OutputFiles) -> ConstantList {
         self.constants.iter().fold(HashMap::new(), |mut acc, (key, value)| {
             if output_file.constants_ref.contains(&key) {
                 acc.insert(key.clone(), value.clone());

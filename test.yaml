@@ -1,12 +1,15 @@
 output_files:
   js:
     path: ./js/constants
+    files: many
     constants: [color, spacing, borders]
   scss:
     path: ./scss/constants
+    files: many
     constants: [spacing, screen, borders]
   css:
     path: ./css
+    files: one
     constants: [color, spacing, screen, borders]
 
 constants:
