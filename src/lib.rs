@@ -2,7 +2,7 @@
 
 mod file_creator;
 mod file_types;
-mod result;
+mod utils;
 
 pub use file_creator::FileCreator as Constapel;
-pub use result::{Error as ConstError, Result as ConstResult};
+pub use utils::{Error as ConstError, Result as ConstResult};

@@ -1,7 +1,7 @@
 use super::{get_reference_value, STR_DONT_EDIT};
 use crate::{
     file_creator::ConstantList,
-    result::{Error, Result},
+    utils::{Error, Result},
 };
 use serde_yaml::Value;
 use std::fs;

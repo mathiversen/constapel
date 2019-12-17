@@ -1,5 +1,5 @@
-/target
 **/*.rs.bk
-/css
-/scss
-/js
+target
+css
+scss
+js

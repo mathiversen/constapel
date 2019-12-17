@@ -1,5 +1,5 @@
 use crate::file_types;
-use crate::result::{Error, Result};
+use crate::utils::{Error, Result};
 use serde::{Deserialize, Serialize};
 use serde_yaml::Value;
 use std::collections::HashMap;
@@ -23,12 +23,12 @@ pub struct OutputFiles {
 }
 
 impl FileCreator {
-    /// Initiate with a yaml string.
+    /// Initiate with a yaml-string.
     pub fn from_yaml(content: String) -> Result<FileCreator> {
         serde_yaml::from_str(&content).map_err(Error::Yaml)
     }
 
-    /// Initiate with a reference to a yaml file.
+    /// Initiate with a reference to a yaml-file.
     pub fn from_yaml_file(path: &PathBuf) -> Result<FileCreator> {
         let mut file = File::open(path)?;
         let mut content = String::new();
