@@ -1,16 +1,16 @@
-output_files:
+config:
   js:
     path: ./js/constants
     files: many
-    constants: [color, spacing, borders]
+    include: [color, spacing, borders]
   scss:
     path: ./scss/constants
     files: many
-    constants: [spacing, screen, borders]
+    include: [spacing, screen, borders]
   css:
     path: ./css
     files: one
-    constants: [color, spacing, screen, borders]
+    include: [color, spacing, screen, borders]
 
 constants:
   color:
