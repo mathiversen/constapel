@@ -1,8 +1,7 @@
 //! Constapel is a simple library to manage and create constants throughout a web application.
 
-mod file_creator;
-mod file_types;
-mod utils;
+pub mod constapel;
+pub mod prelude;
 
-pub use file_creator::Constapel;
-pub use utils::{Error as ConstError, Result as ConstResult};
+pub use crate::constapel::Constapel;
+pub use crate::prelude::{Error, Result};

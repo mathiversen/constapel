@@ -1,10 +1,11 @@
-use crate::utils::{Error, Result};
+use crate::prelude::{Error, Result};
 use serde::{Deserialize, Serialize};
 use serde_yaml::Value;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::prelude::*;
 use std::path::PathBuf;
+use std::fs;
 
 const STR_DONT_EDIT: &str = "DON'T EDIT THIS FILE - IT'S GENERATED";
 
@@ -41,41 +42,45 @@ impl Constapel {
     pub fn run(&self) -> Result<()> {
         for (file_ending, config) in self.config.iter() {
 
-            let mut files: Vec<String> = vec![];
 
             if config.files == "many" {
                 for constant_group_key in config.include.iter() {
-                    let file = String::new();
-                    if let Some(foo) = self.constants.get(constant_group_key) {
-                        file.push_str(self.get_file_heading(&file_ending)?);
+                    let mut file = String::new();
+                    if let Some(constants) = self.constants.get(constant_group_key) {
+                        file.push_str(self.get_file_heading(&file_ending)?.as_str());
                         file.push_str(self.get_constant_object_start(&file_ending, match constant_group_key.as_str() {
                             "js" => Some(constant_group_key),
                             _ => None
                         })?.as_str());
-                        // get_formatted_constant
-                        // get_constant_object_end
+                        for (index, (name, value)) in constants.iter().enumerate() {
+                            file.push_str(self.get_formatted_constant(&file_ending, &constant_group_key, (name, value), index == constants.len() - 1)?.as_str())
+                        }
+                        file.push_str(self.get_constant_object_end(&file_ending)?)
                     } else {
-                        Err(Error::NotAConstant(*constant_group_key));
+                        return Err(Error::NotAConstant(constant_group_key.clone()));
                     }
-                    files.push(file);
+                    self.create_file(&config.path, &constant_group_key, &file_ending, file)?
                 }
             } else {
-                let file = String::new();
-                // get_file_heading
-                // get_constant_object_start
-                // get_formatted_constant
-                // get_constant_object_end
-                files.push(file);
+                println!("TODO ---- single!")
             }
-            // for file in files write to path
         }
         Ok(())
     }
 
-    fn get_file_heading(&self, file_ending: &str) -> Result<&str> {
+    fn create_file (&self, path: &String, file_name: &String, file_ending: &String, content: String) -> Result<()> {
+        if fs::metadata(path).is_err() {
+            fs::create_dir_all(path).expect("Failed to create directory");
+        }
+        let mut file = fs::File::create(format!("{}/{}.{}", path, file_name, file_ending)).expect("Failed to create file.");
+        file.write_all(content.as_bytes())?;
+        Ok(())
+    }
+
+    fn get_file_heading(&self, file_ending: &str) -> Result<String> {
         match file_ending {
-            "js" | "scss" => Ok(format!("// {}\n\n", &STR_DONT_EDIT).as_str()),
-            "css" => Ok(format!("/* {} */\n\n", &STR_DONT_EDIT).as_str()),
+            "js" | "scss" => Ok(format!("// {}\n\n", &STR_DONT_EDIT)),
+            "css" => Ok(format!("/* {} */\n\n", &STR_DONT_EDIT)),
             _ => Err(Error::UnknownTarget(file_ending.to_owned()))
         }
     }
@@ -110,31 +115,28 @@ impl Constapel {
         }
     }
 
-    fn get_formatted_constant (&self, file_ending: &str, constant_pair: (Value, Value), is_last: bool) -> Result<String> {
+    fn get_formatted_constant (&self, file_ending: &str, group_name: &str, constant_pair: (&Value, &Value), _is_last: bool) -> Result<String> {
 
-        let key = constant_pair.1
+        let key = constant_pair.0
             .as_str()
-            .unwrap_or_else(|| {
-                panic!(Err(Error::NotSupportedValue(format!("{:?}", constant_pair.0))))
-            });
+            .expect("Could not unwrap value");
 
         let string = match file_ending {
-            "js" | "css" | "scss" => Ok(format!("\t{}: {}", key, self.get_formatted_constant_value(file_ending, constant_pair.1)?)),
-            _ => Err(Error::UnknownTarget(file_ending.to_owned()))
+            "js" => format!("\t{}: {},\n", key, self.get_formatted_constant_value(file_ending, constant_pair.1)?),
+            "css" => format!("\t--{}-{}: {};\n", group_name, key, self.get_formatted_constant_value(file_ending, constant_pair.1)?),
+            "scss" => format!("${}-{}: {};\n", group_name, key, self.get_formatted_constant_value(file_ending, constant_pair.1)?),
+            _ => panic!(Error::UnknownTarget(file_ending.to_owned()))
         };
 
-        if is_last {
-            string?.push(',');
-        }
-        string
+        Ok(string)
     }
 
-    fn get_formatted_constant_value (&self, file_ending: &str, value: Value) -> Result<String> {
+    fn get_formatted_constant_value (&self, file_ending: &str, value: &Value) -> Result<String> {
 
         // If value is reference, get that value instead
-        let value = match value {
+        let value = match &value {
             Value::String(v) => if v.matches("*").collect::<Vec<&str>>().len() > 0 {
-                self.get_reference_value(&v)?
+                self.get_reference_value(v.clone())?
             } else {
                 value
             }
@@ -151,13 +153,13 @@ impl Constapel {
         }
     }
 
-    fn get_reference_value(&self, reference: &'static str) -> Result<Value> {
+    fn get_reference_value(&self, reference: String) -> Result<&Value> {
         let mut keys: Vec<&str> = reference.split('.').collect();
         keys[0] = keys[0].trim_start_matches('*');
 
         if let Some(category) = self.constants.get(keys[0]) {
           if let Some(value) = category.get(&Value::String(keys[1].to_string())) {
-            Ok(value.clone())
+            Ok(value)
           } else {
             Err(Error::FalsyReference(reference.to_string()))
           }

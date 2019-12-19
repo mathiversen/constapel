@@ -9,7 +9,7 @@ config:
     include: [spacing, screen, borders]
   css:
     path: ./css
-    files: one
+    files: many
     include: [color, spacing, screen, borders]
 
 constants:
