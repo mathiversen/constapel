@@ -42,27 +42,30 @@ impl Constapel {
     pub fn run(&self) -> Result<()> {
         for (file_ending, config) in self.config.iter() {
 
-
-            if config.files == "many" {
-                for constant_group_key in config.include.iter() {
-                    let mut file = String::new();
-                    if let Some(constants) = self.constants.get(constant_group_key) {
-                        file.push_str(self.get_file_heading(&file_ending)?.as_str());
-                        file.push_str(self.get_constant_object_start(&file_ending, match constant_group_key.as_str() {
-                            "js" => Some(constant_group_key),
-                            _ => None
-                        })?.as_str());
-                        for (index, (name, value)) in constants.iter().enumerate() {
-                            file.push_str(self.get_formatted_constant(&file_ending, &constant_group_key, (name, value), index == constants.len() - 1)?.as_str())
+            match config.files.as_str() {
+                "many" => {
+                    for constant_group_key in config.include.iter() {
+                        let mut file = String::new();
+                        if let Some(constants) = self.constants.get(constant_group_key) {
+                            file.push_str(self.get_file_heading(&file_ending)?.as_str());
+                            file.push_str(self.get_constant_object_start(&file_ending, match constant_group_key.as_str() {
+                                "js" => Some(constant_group_key),
+                                _ => None
+                            })?.as_str());
+                            for (index, (name, value)) in constants.iter().enumerate() {
+                                file.push_str(self.get_formatted_constant(&file_ending, &constant_group_key, (name, value), index == constants.len() - 1)?.as_str())
+                            }
+                            file.push_str(self.get_constant_object_end(&file_ending)?)
+                        } else {
+                            return Err(Error::NotAConstant(constant_group_key.clone()));
                         }
-                        file.push_str(self.get_constant_object_end(&file_ending)?)
-                    } else {
-                        return Err(Error::NotAConstant(constant_group_key.clone()));
+                        self.create_file(&config.path, &constant_group_key, &file_ending, file)?
                     }
-                    self.create_file(&config.path, &constant_group_key, &file_ending, file)?
-                }
-            } else {
-                println!("TODO ---- single!")
+                },
+                "one" => {
+                    println!("one");
+                },
+                _ => return Err(Error::UnknownConfig(format!("config.{}.files", &file_ending), config.files.clone()))
             }
         }
         Ok(())

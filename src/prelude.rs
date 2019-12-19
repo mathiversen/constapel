@@ -15,5 +15,7 @@ pub enum Error {
     #[display(fmt = "[ERROR]: The reference used could not be found, {}", _0)]
     FalsyReference(String),
     #[display(fmt = "[ERROR]: The referenced constant group doesn't exist, {}", _0)]
-    NotAConstant(String)
+    NotAConstant(String),
+    #[display(fmt = "[ERROR]: The config provided is unknown. {}: {}", _0, _1)]
+    UnknownConfig(String, String)
 }
