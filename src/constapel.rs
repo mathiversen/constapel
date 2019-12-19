@@ -55,15 +55,31 @@ impl Constapel {
                             for (index, (name, value)) in constants.iter().enumerate() {
                                 file.push_str(self.get_formatted_constant(&file_ending, &constant_group_key, (name, value), index == constants.len() - 1)?.as_str())
                             }
-                            file.push_str(self.get_constant_object_end(&file_ending)?)
+                            file.push_str(self.get_constant_object_end(&file_ending, false)?.as_str())
                         } else {
                             return Err(Error::NotAConstant(constant_group_key.clone()));
                         }
-                        self.create_file(&config.path, &constant_group_key, &file_ending, file)?
+                        self.create_file(&config.path, Some(&constant_group_key), &file_ending, file)?
                     }
                 },
                 "one" => {
-                    println!("one");
+                    let mut file = String::new();
+                    file.push_str(self.get_file_heading(&file_ending)?.as_str());
+                    for (i, constant_group_key) in config.include.iter().enumerate() {
+                        if let Some(constants) = self.constants.get(constant_group_key) {
+                            file.push_str(self.get_constant_object_start(&file_ending, match constant_group_key.as_str() {
+                                "js" => Some(constant_group_key),
+                                _ => None
+                            })?.as_str());
+                            for (j, (name, value)) in constants.iter().enumerate() {
+                                file.push_str(self.get_formatted_constant(&file_ending, &constant_group_key, (name, value), j == constants.len() - 1)?.as_str())
+                            }
+                            file.push_str(self.get_constant_object_end(&file_ending, i != config.include.len() - 1)?.as_str());
+                        } else {
+                            return Err(Error::NotAConstant(constant_group_key.clone()));
+                        }
+                    }
+                    self.create_file(&config.path, None, &file_ending, file)?
                 },
                 _ => return Err(Error::UnknownConfig(format!("config.{}.files", &file_ending), config.files.clone()))
             }
@@ -71,12 +87,17 @@ impl Constapel {
         Ok(())
     }
 
-    fn create_file (&self, path: &String, file_name: &String, file_ending: &String, content: String) -> Result<()> {
+    fn create_file (&self, path: &String, file_name: Option<&String>, file_ending: &String, content: String) -> Result<()> {
         if fs::metadata(path).is_err() {
             fs::create_dir_all(path).expect("Failed to create directory");
         }
-        let mut file = fs::File::create(format!("{}/{}.{}", path, file_name, file_ending)).expect("Failed to create file.");
-        file.write_all(content.as_bytes())?;
+        if let Some(name) = file_name {
+            let mut file = fs::File::create(format!("{}/{}.{}", path, name, file_ending)).expect("Failed to create file.");
+            file.write_all(content.as_bytes())?;
+        } else {
+            let mut file = fs::File::create(format!("{}/test.{}", path, file_ending)).expect("Failed to create file.");
+            file.write_all(content.as_bytes())?;
+        }
         Ok(())
     }
 
@@ -110,10 +131,11 @@ impl Constapel {
         }
     }
 
-    fn get_constant_object_end <'a> (&self, file_ending: &str) -> Result<&str> {
+    fn get_constant_object_end (&self, file_ending: &str, add_space: bool) -> Result<String> {
+        dbg!(add_space);
         match file_ending {
-            "js" | "css" => Ok("}"),
-            "scss" => Ok(""),
+            "js" | "css" => Ok(format!("}}{}", if add_space { "\n\n" } else { "" })),
+            "scss" => Ok(format!("{}", if add_space { "\n" } else { "" })),
             _ => Err(Error::UnknownTarget(file_ending.to_owned()))
         }
     }
