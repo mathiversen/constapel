@@ -6,6 +6,7 @@ use std::fs::File;
 use std::io::prelude::*;
 use std::path::PathBuf;
 use std::fs;
+use regex::Regex;
 
 const STR_DONT_EDIT: &str = "DON'T EDIT THIS FILE - IT'S GENERATED";
 const STR_SINGLE_FILE_NAME: &str = "constants";
@@ -139,15 +140,18 @@ impl Constapel {
 
     fn get_formatted_constant_value (&self, file_ending: &str, value: &Value) -> Result<String> {
 
+        let re = Regex::new(r"{{.+?(?=})}}").unwrap();
+
         // If value is reference, get that value instead
-        let value = match &value {
-            Value::String(v) => if v.matches("*").collect::<Vec<&str>>().len() > 0 {
-                self.get_reference_value(v.clone())?
-            } else {
-                value
-            }
+        let test = match &value {
+            Value::String(v) => {
+                let mut clone = v.clone();
+                let captures = re.captures(text: &'t str) // TODO: Capture regex matches and replace them with the value they're pointing at
+            },
             _ => value
         };
+
+        dbg!(test);
 
         match file_ending {
             "js" | "css" | "scss" => match value {

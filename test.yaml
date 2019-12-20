@@ -41,4 +41,4 @@ constants:
     xl: "1280px"
 
   borders:
-    red: "*color.red"
+    red: "solid 1px {{ color.red }}"
