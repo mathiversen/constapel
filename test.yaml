@@ -1,16 +1,26 @@
 config:
   js:
     path: ./js/constants
-    files: many
-    include: [color, spacing, borders]
+    files: one
+    include:
+      - color
+      - spacing
+      - borders
   scss:
     path: ./scss/constants
-    files: many
-    include: [spacing, screen, borders]
+    files: one
+    include:
+      - spacing
+      - screen
+      - borders
   css:
     path: ./css
-    files: many
-    include: [color, spacing, screen, borders]
+    files: one
+    include:
+      - color
+      - spacing
+      - screen
+      - borders
 
 constants:
   color:

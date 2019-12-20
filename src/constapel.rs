@@ -49,7 +49,7 @@ impl Constapel {
                         let mut file = String::new();
                         if let Some(constants) = self.constants.get(constant_group_key) {
                             file.push_str(self.get_file_heading(&file_ending)?.as_str());
-                            file.push_str(self.get_constant_object_start(&file_ending, None)?.as_str());
+                            file.push_str(self.get_constant_object_start(&file_ending, &constant_group_key)?.as_str());
                             for (index, (name, value)) in constants.iter().enumerate() {
                                 file.push_str(self.get_formatted_constant(&file_ending, &constant_group_key, (name, value), index == constants.len() - 1)?.as_str())
                             }
@@ -65,10 +65,7 @@ impl Constapel {
                     file.push_str(self.get_file_heading(&file_ending)?.as_str());
                     for (i, constant_group_key) in config.include.iter().enumerate() {
                         if let Some(constants) = self.constants.get(constant_group_key) {
-                            file.push_str(self.get_constant_object_start(&file_ending, match file_ending.as_str() {
-                                "js" => Some(constant_group_key),
-                                _ => None
-                            })?.as_str());
+                            file.push_str(self.get_constant_object_start(&file_ending, &constant_group_key)?.as_str());
                             for (j, (name, value)) in constants.iter().enumerate() {
                                 file.push_str(self.get_formatted_constant(&file_ending, &constant_group_key, (name, value), j == constants.len() - 1)?.as_str())
                             }
@@ -107,26 +104,12 @@ impl Constapel {
         }
     }
 
-    fn get_constant_object_start <'a> (&self, file_ending: &str, name: Option<&'a str>) -> Result<String> {
-        dbg!(&name);
+    fn get_constant_object_start <'a> (&self, file_ending: &str, name: &'a str) -> Result<String> {
         match file_ending {
-            "js" => Ok(format!("export {} {{\n", self.get_constant_object_name(file_ending, name)?)),
-            "css" => Ok(format!("{} {{\n", self.get_constant_object_name(file_ending, name)?)),
-            "scss" => Ok(format!("{}", self.get_constant_object_name(file_ending, name)?)),
+            "js" => Ok(format!("export const {} = {{\n", name)),
+            "css" => Ok(":root {\n".to_string()),
+            "scss" => Ok("".to_string()),
             _ => Err(Error::UnknownTarget(file_ending.to_owned()))
-        }
-    }
-
-    fn get_constant_object_name <'a> (&self, file_ending: &str, name: Option<&'a str>) -> Result<&'a str> {
-        if name.is_some() {
-            Ok(name.unwrap())
-        } else {
-            match file_ending {
-                "js" => Ok("default"),
-                "css" => Ok(":root"),
-                "scss" => Ok(""),
-                _ => Err(Error::UnknownTarget(file_ending.to_owned()))
-            }
         }
     }
 

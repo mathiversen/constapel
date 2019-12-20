@@ -4,7 +4,7 @@ use constapel::Constapel;
 fn it_can_parse_yaml() {
     let yaml = r#"
       config:
-        js:
+        css:
           path: '.'
           files: many
           include: [colors]
